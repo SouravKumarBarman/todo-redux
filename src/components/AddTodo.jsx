@@ -16,13 +16,14 @@ function AddTodo() {
   };
 
   return (
-    <form onSubmit={addTodoHandler} className="my-12">
+    <form onSubmit={addTodoHandler} className="my-12 mx-3 sm:mx-20">
       <div className="flex flex-row space-x-3">
         <TextField
           fullWidth
           color="secondary"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          label="Enter a task"
         ></TextField>
 
         <Button
