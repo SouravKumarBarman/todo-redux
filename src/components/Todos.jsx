@@ -1,46 +1,108 @@
-import { useSelector, useDispatch } from "react-redux";
-import { removeTodo } from "../features/todo/todoSlice";
+/* eslint-disable react/prop-types */
+import { useDispatch } from "react-redux";
+import {
+  removeTodo,
+  updateTodo,
+  toggleCompleteTodo,
+} from "../features/todo/todoSlice";
+import { useState } from "react";
+import { Button, Checkbox, TextField } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
 
-function Todos() {
-  //for taking values from the store we use the useSelector method
-  
-  //to find what we need inside the state we use a callback 
-  //here we are taking out the todos array from the store
-  const todos = useSelector((state) => state.todos);
-
+function Todos({ task }) {
   //for using the reducers we have first initialized the dispatch using useDispatch
   const dispatch = useDispatch();
+  const [isEditing, setIsEditing] = useState(false);
+  const [newText, setNewText] = useState(task.text);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    if (newText.trim()) {
+      dispatch(updateTodo({ id: task.id, text: newText }));
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setNewText(task.text);
+  };
 
   return (
     <>
       <ul className="list-none">
-        {todos.map((todo) => (
-          <li
-            className="mt-4 flex justify-between items-center bg-zinc-800 px-4 py-2 rounded"
-            key={todo.id}
-          >
-            <div className="text-white"> {todo.text} </div>
-            <button
-              onClick={() => dispatch(removeTodo(todo.id))}
-              className="text-white bg-red-500 border-0 py-1 px-4 focus:outline-none hover:bg-red-600 rounded text-md"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
+        <li
+          className="mt-4 flex justify-between items-center bg-stone-700 px-4 py-4 rounded"
+          key={task.id}
+        >
+          <Checkbox
+            color="secondary"
+            checked={task.completed}
+            onChange={() => dispatch(toggleCompleteTodo(task.id))}
+          />
+          {isEditing ? (
+            <div className="w-full ml-2 ">
+              <TextField
+              className="text-black h-8 justify-center "
+              focused
+              fullWidth
+              value={newText}
+              id="outlined-basic"
+              variant="outlined"
+              onChange={(e) => setNewText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSave();
+                if (e.key === "Escape") handleCancel();
+              }}
+            />
+            </div>
+            
+          ) : (
+            <>
+              <p 
+                className="text-white grow text-left mx-5 py-2 font-sans text-xl font-medium"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                />
-              </svg>
-            </button>
-          </li>
-        ))}
+                {task.text}
+              </p>
+            </>
+          )}
+
+          {isEditing ? (
+            <div className="flex space-x-4 pl-3">
+              <Button color="secondary" variant="contained" onClick={handleSave} startIcon={<SaveIcon />}>
+                Save
+              </Button>
+              <Button color="secondary" variant="contained" onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <div className="flex space-x-4">
+              <Button
+               color="secondary"
+                variant="contained"
+                onClick={handleEdit}
+                disabled={task.completed}
+                startIcon={<EditIcon />}
+              >
+                Edit
+              </Button>
+              <Button
+                color="secondary"
+                variant="contained"
+                startIcon={<DeleteIcon />}
+                onClick={() => dispatch(removeTodo(task.id))}
+              >
+                <span className="">Delete</span>
+              </Button>
+            </div>
+          )}
+        </li>
       </ul>
     </>
   );

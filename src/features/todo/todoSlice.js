@@ -7,7 +7,7 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 const initialState = {
-    todos: [{ id: 1, text: "hello" }]
+    todos: [{ id: 1, text: "hello", completed: false }]
 }
 
 export const todoSlice = createSlice({
@@ -26,7 +26,8 @@ export const todoSlice = createSlice({
         addTodo: (state, action) => {
             const todo = {
                 id: nanoid(),
-                text: action.payload
+                text: action.payload,
+                completed: false
             }
             state.todos.push(todo)
         },
@@ -34,13 +35,19 @@ export const todoSlice = createSlice({
             state.todos = state.todos.filter((todo) => todo.id !== action.payload)
         },
         updateTodo: (state, action) => {
-            state.todos = state.todos.map((todo) => todo.id === action.payload.id ? { ...todo, text: action.payload } : todo);
+            state.todos = state.todos.map((todo) => todo.id === action.payload.id ? { ...todo, text: action.payload.text } : todo)
+        },
+        toggleCompleteTodo: (state, action) => {
+            state.todos = state.todos.map((todo) => todo.id === action.payload ? {
+                ...todo, completed: !todo.completed
+            } : todo)
         }
     }
 })
 
+
 //we are exporting all the reducers one by one to use then inside the components
-export const { addTodo, removeTodo, updateTodo } = todoSlice.actions
+export const { addTodo, removeTodo, updateTodo, toggleCompleteTodo } = todoSlice.actions
 
 //we export the main source of all the reducers to put it inside the store 
 export default todoSlice.reducer 
